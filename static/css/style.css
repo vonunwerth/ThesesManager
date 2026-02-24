@@ -60,6 +60,11 @@ a {
     padding: 0 2rem;
 }
 
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+
 .main-header {
     padding: 2rem 0;
     border-bottom: 1px solid var(--border-color);
