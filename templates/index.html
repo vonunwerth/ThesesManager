@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h2>Supervised Theses</h2>
+    <p>Manage your students and their progress.</p>
+</div>
+
+<div class="student-grid">
+    {% for student in students %}
+    <div class="student-card" data-href="{{ url_for('student_detail', id=student.id) }}" data-id="{{ student.id }}">
+        <div class="card-status-bar status-{{ student.status|replace(' ', '-')|lower }}"></div>
+        <div class="card-header">
+            <span class="status-badge status-{{ student.status|replace(' ', '-')|lower }}">{{ student.status }}</span>
+        </div>
+        <div class="card-body">
+            <h3>{{ student.first_name }} {{ student.last_name }}</h3>
+            <p class="thesis-title">{{ student.title or 'No Title Yet' }}</p>
+        </div>
+        <div class="card-footer" style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="deadline">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span>{{ student.submission_date.strftime('%d.%m.%Y') if student.submission_date else 'No Deadline'
+                    }}</span>
+                {% if student.submission_date %}
+                <span class="days-left"
+                    style="font-weight: 500; margin-left: 0.25rem; color: {% if (student.submission_date - today).days < 14 %}#ef4444{% else %}var(--text-secondary){% endif %};">
+                    ({{ (student.submission_date - today).days }}d left)
+                </span>
+                {% endif %}
+            </div>
+            <div class="url-links" style="display: flex; gap: 0.5rem;" onclick="event.stopPropagation();">
+                {% if student.expose_url %}
+                <a href="{{ student.expose_url }}" target="_blank" class="url-btn" title="Expose/Overleaf"
+                    style="color: var(--text-secondary); transition: var(--transition);">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                </a>
+                {% endif %}
+                {% if student.thesis_url %}
+                <a href="{{ student.thesis_url }}" target="_blank" class="url-btn" title="Thesis/Overleaf"
+                    style="color: var(--text-secondary); transition: var(--transition);">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                    </svg>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Add Student Tile -->
+    <button class="student-card add-card" id="addStudentBtn">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        <span>Add Student</span>
+    </button>
+</div>
+
+<!-- Context Menu -->
+<div id="contextMenu" class="context-menu">
+    <div class="menu-item delete-action" id="deleteStudentContextBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 6h18"></path>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        </svg>
+        Delete Student
+    </div>
+</div>
+
+<!-- Add Student Modal -->
+<div id="addStudentModal" class="modal">
+    <div class="modal-content glass-panel">
+        <div class="modal-header">
+            <h2>Add New Student</h2>
+            <button class="close-btn" id="closeModalBtn">&times;</button>
+        </div>
+        <form id="addStudentForm" class="form-grid">
+            <div class="form-group">
+                <label for="first_name">First Name</label>
+                <input type="text" id="first_name" required>
+            </div>
+            <div class="form-group">
+                <label for="last_name">Last Name</label>
+                <input type="text" id="last_name" required>
+            </div>
+            <div class="form-group">
+                <label for="matriculation_number">Matriculation Number</label>
+                <input type="text" id="matriculation_number" required>
+            </div>
+            <div class="form-group">
+                <label for="program">Program (Studiengang)</label>
+                <input type="text" id="program" required>
+            </div>
+            <div class="form-group">
+                <label for="degree_type">Degree Type</label>
+                <select id="degree_type" required>
+                    <option value="Bachelor">Bachelor</option>
+                    <option value="Master">Master</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="start_date">Start Date (Anmeldedatum)</label>
+                <input type="date" id="start_date">
+            </div>
+            <div class="form-group">
+                <label for="submission_date">Submission Date (Abgabedatum)</label>
+                <input type="date" id="submission_date">
+            </div>
+            <div class="form-group">
+                <label for="regular_meeting">Regular Meeting (Regeltermin)</label>
+                <input type="text" id="regular_meeting" placeholder="e.g. Every Monday 14:00">
+            </div>
+            <div class="form-group full-width">
+                <label for="status">Status</label>
+                <select id="status" required>
+                    <option value="Erste Idee">Erste Idee</option>
+                    <option value="Schreibt Expose">Schreibt Exposé</option>
+                    <option value="Expose wartet auf Review">Exposé wartet auf Review</option>
+                    <option value="Anmeldung eingereicht">Anmeldung eingereicht</option>
+                    <option value="Angemeldet">Angemeldet</option>
+                    <option value="Abgegeben">Abgegeben</option>
+                    <option value="Bewertet">Bewertet</option>
+                </select>
+            </div>
+            <div class="form-row full-width">
+                <div class="form-group">
+                    <label for="expose_url">Expose URL</label>
+                    <input type="url" id="expose_url" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label for="thesis_url">Thesis URL</label>
+                    <input type="url" id="thesis_url" placeholder="https://...">
+                </div>
+            </div>
+            <div class="form-actions full-width">
+                <button type="button" class="btn btn-secondary" id="cancelModalBtn">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Student</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
