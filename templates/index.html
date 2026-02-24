@@ -1,60 +1,77 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="dashboard-header">
-    <h2>Supervised Theses</h2>
-    <p>Manage your students and their progress.</p>
+
+{% macro student_card(student) %}
+<div class="student-card" data-href="{{ url_for('student_detail', id=student.id) }}" data-id="{{ student.id }}">
+    <div class="card-status-bar status-{{ student.status|replace(' ', '-')|lower }}"></div>
+    <div class="card-header">
+        <span class="status-badge status-{{ student.status|replace(' ', '-')|lower }}">{{ student.status }}</span>
+    </div>
+    <div class="card-body">
+        <h3>{{ student.first_name }} {{ student.last_name }}</h3>
+        <p class="thesis-title">{{ student.title or 'No Title Yet' }}</p>
+    </div>
+    <div class="card-footer" style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="deadline">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <span>{{ student.submission_date.strftime('%d.%m.%Y') if student.submission_date else 'No Deadline'
+                }}</span>
+            {% if student.submission_date %}
+            <span class="days-left"
+                style="font-weight: 500; margin-left: 0.25rem; color: {% if (student.submission_date - today).days < 14 %}#ef4444{% else %}var(--text-secondary){% endif %};">
+                ({{ (student.submission_date - today).days }}d left)
+            </span>
+            {% endif %}
+        </div>
+        <div class="url-links" style="display: flex; gap: 0.5rem;" onclick="event.stopPropagation();">
+            {% if student.expose_url %}
+            <a href="{{ student.expose_url }}" target="_blank" class="url-btn" title="Expose/Overleaf"
+                style="color: var(--text-secondary); transition: var(--transition);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                </svg>
+            </a>
+            {% endif %}
+            {% if student.thesis_url %}
+            <a href="{{ student.thesis_url }}" target="_blank" class="url-btn" title="Thesis/Overleaf"
+                style="color: var(--text-secondary); transition: var(--transition);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+<div class="dashboard-header" style="display: flex; justify-content: space-between; align-items: flex-end;">
+    <div>
+        <h2>Supervised Theses</h2>
+        <p>Manage your active students and their progress.</p>
+    </div>
+    <a href="{{ url_for('table_view') }}" class="btn btn-secondary" style="margin-bottom: 0.5rem;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="3" y1="9" x2="21" y2="9"></line>
+            <line x1="3" y1="15" x2="21" y2="15"></line>
+            <line x1="9" y1="9" x2="9" y2="21"></line>
+            <line x1="15" y1="9" x2="15" y2="21"></line>
+        </svg>
+        Database Table
+    </a>
 </div>
 
 <div class="student-grid">
     {% for student in students %}
-    <div class="student-card" data-href="{{ url_for('student_detail', id=student.id) }}" data-id="{{ student.id }}">
-        <div class="card-status-bar status-{{ student.status|replace(' ', '-')|lower }}"></div>
-        <div class="card-header">
-            <span class="status-badge status-{{ student.status|replace(' ', '-')|lower }}">{{ student.status }}</span>
-        </div>
-        <div class="card-body">
-            <h3>{{ student.first_name }} {{ student.last_name }}</h3>
-            <p class="thesis-title">{{ student.title or 'No Title Yet' }}</p>
-        </div>
-        <div class="card-footer" style="display: flex; justify-content: space-between; align-items: center;">
-            <div class="deadline">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12 6 12 12 16 14"></polyline>
-                </svg>
-                <span>{{ student.submission_date.strftime('%d.%m.%Y') if student.submission_date else 'No Deadline'
-                    }}</span>
-                {% if student.submission_date %}
-                <span class="days-left"
-                    style="font-weight: 500; margin-left: 0.25rem; color: {% if (student.submission_date - today).days < 14 %}#ef4444{% else %}var(--text-secondary){% endif %};">
-                    ({{ (student.submission_date - today).days }}d left)
-                </span>
-                {% endif %}
-            </div>
-            <div class="url-links" style="display: flex; gap: 0.5rem;" onclick="event.stopPropagation();">
-                {% if student.expose_url %}
-                <a href="{{ student.expose_url }}" target="_blank" class="url-btn" title="Expose/Overleaf"
-                    style="color: var(--text-secondary); transition: var(--transition);">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                        <polyline points="15 3 21 3 21 9"></polyline>
-                        <line x1="10" y1="14" x2="21" y2="3"></line>
-                    </svg>
-                </a>
-                {% endif %}
-                {% if student.thesis_url %}
-                <a href="{{ student.thesis_url }}" target="_blank" class="url-btn" title="Thesis/Overleaf"
-                    style="color: var(--text-secondary); transition: var(--transition);">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                    </svg>
-                </a>
-                {% endif %}
-            </div>
-        </div>
-    </div>
+    {{ student_card(student) }}
     {% endfor %}
 
     <!-- Add Student Tile -->
@@ -67,6 +84,24 @@
         <span>Add Student</span>
     </button>
 </div>
+
+{% if graded_students %}
+<div class="graded-section" style="margin-top: 4rem;">
+    <h3 style="cursor: pointer; display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary); padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);"
+        onclick="document.getElementById('graded-grid').classList.toggle('hidden'); this.querySelector('svg').style.transform = document.getElementById('graded-grid').classList.contains('hidden') ? 'rotate(-90deg)' : 'rotate(0deg)';">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            style="transition: transform 0.3s;">
+            <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+        Archived / Bewertet ({{ graded_students|length }})
+    </h3>
+    <div id="graded-grid" class="student-grid" style="margin-top: 1.5rem;">
+        {% for student in graded_students %}
+        {{ student_card(student) }}
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
 
 <!-- Context Menu -->
 <div id="contextMenu" class="context-menu">
@@ -94,6 +129,10 @@
             <div class="form-group">
                 <label for="last_name">Last Name</label>
                 <input type="text" id="last_name" required>
+            </div>
+            <div class="form-group full-width">
+                <label for="title">Thesis Title (Optional)</label>
+                <input type="text" id="title" placeholder="Enter thesis title if known">
             </div>
             <div class="form-group">
                 <label for="matriculation_number">Matriculation Number</label>

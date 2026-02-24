@@ -71,12 +71,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.getElementById('addStudentForm').addEventListener('submit', (e) => {
             e.preventDefault();
+
+            // Prevent double submission
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Saving...';
+
             const data = {
                 first_name: document.getElementById('first_name').value,
                 last_name: document.getElementById('last_name').value,
                 matriculation_number: document.getElementById('matriculation_number').value,
                 program: document.getElementById('program').value,
                 degree_type: document.getElementById('degree_type').value,
+                title: document.getElementById('title').value,
                 start_date: document.getElementById('start_date').value,
                 submission_date: document.getElementById('submission_date').value,
                 regular_meeting: document.getElementById('regular_meeting').value,
@@ -94,7 +101,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(resData => {
                     if (resData.success) {
                         window.location.reload();
+                    } else {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Save Student';
                     }
+                })
+                .catch(err => {
+                    console.error(err);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Save Student';
                 });
         });
     }

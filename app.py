@@ -32,10 +32,23 @@ with app.app_context():
 @app.route('/')
 def index():
     # Sort by submission date, handling nulls (put them at the end)
-    students = Student.query.all()
+    all_students = Student.query.all()
     today = datetime.now().date()
-    students.sort(key=lambda s: s.submission_date or datetime.max.date())
-    return render_template('index.html', students=students, today=today)
+    
+    active_students = [s for s in all_students if s.status != 'Bewertet']
+    graded_students = [s for s in all_students if s.status == 'Bewertet']
+    
+    active_students.sort(key=lambda s: s.submission_date or datetime.max.date())
+    graded_students.sort(key=lambda s: s.submission_date or datetime.min.date(), reverse=True)
+    
+    return render_template('index.html', students=active_students, graded_students=graded_students, today=today)
+
+@app.route('/table')
+def table_view():
+    students = Student.query.all()
+    # Sort by ID or whichever makes sense
+    students.sort(key=lambda s: s.id)
+    return render_template('table.html', students=students)
 
 @app.route('/api/students', methods=['POST'])
 def add_student():
