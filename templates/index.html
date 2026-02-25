@@ -20,6 +20,11 @@
             </svg>
             {{ student.supervisor }}
         </p>
+        {% else %}
+        <p
+            style="font-size: 0.75rem; color: var(--text-secondary); opacity: 0.5; margin-top: 0.25rem; font-style: italic;">
+            Ohne Betreuer
+        </p>
         {% endif %}
     </div>
     <div class="card-footer" style="display: flex; justify-content: space-between; align-items: center;">
@@ -97,6 +102,8 @@
     <a href="{{ url_for('index', supervisor=sup) }}"
         class="filter-btn {% if selected_supervisor == sup %}filter-btn-active{% endif %}">{{ sup }}</a>
     {% endfor %}
+    <a href="{{ url_for('index', supervisor='Ohne Betreuer') }}"
+        class="filter-btn {% if selected_supervisor == 'Ohne Betreuer' %}filter-btn-active{% endif %}">Ohne Betreuer</a>
 </div>
 {% endif %}
 

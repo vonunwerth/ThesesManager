@@ -16,7 +16,7 @@
 </div>
 
 <div class="glass-panel" style="padding: 1.5rem; overflow-x: auto;">
-    <table class="db-table" style="width: 100%; text-align: left; border-collapse: collapse; min-width: 1200px;">
+    <table class="db-table" style="width: 100%; text-align: left; border-collapse: collapse; min-width: 2400px;">
         <thead>
             <tr style="border-bottom: 1px solid var(--border-color); color: var(--text-secondary);">
                 <th style="padding: 1rem 0.5rem;">ID</th>
@@ -29,6 +29,11 @@
                 <th style="padding: 1rem 0.5rem;">Status</th>
                 <th style="padding: 1rem 0.5rem;">Betreuer</th>
                 <th style="padding: 1rem 0.5rem;">Kennziffer</th>
+                <th style="padding: 1rem 0.5rem;">Anmeldedatum</th>
+                <th style="padding: 1rem 0.5rem;">Abgabedatum</th>
+                <th style="padding: 1rem 0.5rem;">Regeltermin</th>
+                <th style="padding: 1rem 0.5rem;">Expose URL</th>
+                <th style="padding: 1rem 0.5rem;">Thesis URL</th>
                 <th style="padding: 1rem 0.5rem;">Cloudfolder URL</th>
                 <th style="padding: 1rem 0.5rem; text-align: center;">Actions</th>
             </tr>
@@ -77,6 +82,17 @@
                         value="{{ student.supervisor or '' }}"></td>
                 <td style="padding: 0.75rem 0.5rem;"><input type="text" class="table-input" data-field="kennziffer"
                         value="{{ student.kennziffer or '' }}"></td>
+                <td style="padding: 0.75rem 0.5rem;"><input type="date" class="table-input" data-field="start_date"
+                        value="{{ student.start_date.strftime('%Y-%m-%d') if student.start_date else '' }}"></td>
+                <td style="padding: 0.75rem 0.5rem;"><input type="date" class="table-input" data-field="submission_date"
+                        value="{{ student.submission_date.strftime('%Y-%m-%d') if student.submission_date else '' }}">
+                </td>
+                <td style="padding: 0.75rem 0.5rem;"><input type="text" class="table-input" data-field="regular_meeting"
+                        value="{{ student.regular_meeting or '' }}"></td>
+                <td style="padding: 0.75rem 0.5rem;"><input type="text" class="table-input" data-field="expose_url"
+                        value="{{ student.expose_url or '' }}"></td>
+                <td style="padding: 0.75rem 0.5rem;"><input type="text" class="table-input" data-field="thesis_url"
+                        value="{{ student.thesis_url or '' }}"></td>
                 <td style="padding: 0.75rem 0.5rem;"><input type="text" class="table-input" data-field="cloudfolder_url"
                         value="{{ student.cloudfolder_url or '' }}"></td>
                 <td style="padding: 0.75rem 0.5rem; text-align: center;">
@@ -92,7 +108,7 @@
             </tr>
             {% else %}
             <tr>
-                <td colspan="12" style="padding: 2rem; text-align: center; color: var(--text-secondary);">No students
+                <td colspan="17" style="padding: 2rem; text-align: center; color: var(--text-secondary);">No students
                     found in the database.</td>
             </tr>
             {% endfor %}

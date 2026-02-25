@@ -44,6 +44,8 @@ def index():
     def matches(s):
         if selected_supervisor == 'Alle':
             return True
+        if selected_supervisor == 'Ohne Betreuer':
+            return not (s.supervisor and s.supervisor.strip())
         return (s.supervisor or '').strip() == selected_supervisor
 
     active_students = [s for s in all_students if s.status != 'Bewertet' and matches(s)]
