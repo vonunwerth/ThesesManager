@@ -31,17 +31,35 @@ with app.app_context():
 
 @app.route('/')
 def index():
-    # Sort by submission date, handling nulls (put them at the end)
     all_students = Student.query.all()
     today = datetime.now().date()
-    
-    active_students = [s for s in all_students if s.status != 'Bewertet']
-    graded_students = [s for s in all_students if s.status == 'Bewertet']
-    
+
+    # Collect unique supervisors (non-empty)
+    all_supervisors = sorted(set(
+        s.supervisor for s in all_students if s.supervisor and s.supervisor.strip()
+    ))
+
+    selected_supervisor = request.args.get('supervisor', 'Alle')
+
+    def matches(s):
+        if selected_supervisor == 'Alle':
+            return True
+        return (s.supervisor or '').strip() == selected_supervisor
+
+    active_students = [s for s in all_students if s.status != 'Bewertet' and matches(s)]
+    graded_students = [s for s in all_students if s.status == 'Bewertet' and matches(s)]
+
     active_students.sort(key=lambda s: s.submission_date or datetime.max.date())
     graded_students.sort(key=lambda s: s.submission_date or datetime.min.date(), reverse=True)
-    
-    return render_template('index.html', students=active_students, graded_students=graded_students, today=today)
+
+    return render_template(
+        'index.html',
+        students=active_students,
+        graded_students=graded_students,
+        today=today,
+        all_supervisors=all_supervisors,
+        selected_supervisor=selected_supervisor
+    )
 
 @app.route('/table')
 def table_view():
@@ -74,7 +92,10 @@ def add_student():
         regular_meeting=data.get('regular_meeting', ''),
         expose_url=data.get('expose_url', ''),
         thesis_url=data.get('thesis_url', ''),
-        status=data.get('status', 'Erste Idee')
+        status=data.get('status', 'Erste Idee'),
+        supervisor=data.get('supervisor', ''),
+        kennziffer=data.get('kennziffer', ''),
+        cloudfolder_url=data.get('cloudfolder_url', '')
     )
     
     db.session.add(student)
@@ -125,6 +146,9 @@ def update_delete_student(id):
         student.expose_url = data.get('expose_url', student.expose_url)
         student.thesis_url = data.get('thesis_url', student.thesis_url)
         student.status = data.get('status', student.status)
+        student.supervisor = data.get('supervisor', student.supervisor)
+        student.kennziffer = data.get('kennziffer', student.kennziffer)
+        student.cloudfolder_url = data.get('cloudfolder_url', student.cloudfolder_url)
         
         if data.get('start_date'):
             student.start_date = datetime.strptime(data['start_date'], '%Y-%m-%d').date()

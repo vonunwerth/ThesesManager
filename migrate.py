@@ -13,6 +13,21 @@ def migrate():
     except sqlite3.OperationalError:
         pass
 
+    try:
+        c.execute('ALTER TABLE student ADD COLUMN cloudfolder_url VARCHAR(500)')
+    except sqlite3.OperationalError:
+        pass
+
+    try:
+        c.execute('ALTER TABLE student ADD COLUMN supervisor VARCHAR(150)')
+    except sqlite3.OperationalError:
+        pass
+
+    try:
+        c.execute('ALTER TABLE student ADD COLUMN kennziffer VARCHAR(50)')
+    except sqlite3.OperationalError:
+        pass
+
     conn.commit()
     conn.close()
     print("Migration successful.")

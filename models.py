@@ -18,6 +18,10 @@ class Student(db.Model):
     
     expose_url = db.Column(db.String(500), nullable=True)
     thesis_url = db.Column(db.String(500), nullable=True)
+    cloudfolder_url = db.Column(db.String(500), nullable=True)  # Cloudfolder URL
+
+    supervisor = db.Column(db.String(150), nullable=True)  # Betreuer
+    kennziffer = db.Column(db.String(50), nullable=True)   # Kennziffer
     
     # Erste Idee, Schreibt Expose, Expose wartet auf Review, Anmeldung eingereicht, Angemeldet, Abgegeben, Bewertet
     status = db.Column(db.String(50), nullable=False, default="Erste Idee") 

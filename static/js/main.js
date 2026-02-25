@@ -90,6 +90,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 expose_url: document.getElementById('expose_url').value,
                 thesis_url: document.getElementById('thesis_url').value,
                 status: document.getElementById('status').value,
+                supervisor: document.getElementById('supervisor').value,
+                kennziffer: document.getElementById('kennziffer').value,
+                cloudfolder_url: document.getElementById('cloudfolder_url').value,
             };
 
             fetch('/api/students', {
@@ -132,6 +135,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 expose_url: document.getElementById('edit_expose_url').value,
                 thesis_url: document.getElementById('edit_thesis_url').value,
                 status: document.getElementById('edit_status').value,
+                supervisor: document.getElementById('edit_supervisor').value,
+                kennziffer: document.getElementById('edit_kennziffer').value,
+                cloudfolder_url: document.getElementById('edit_cloudfolder_url').value,
             };
 
             fetch(`/api/students/${STUDENT_ID}`, {
